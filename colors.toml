@@ -1,0 +1,36 @@
+# Rams — after Dieter Rams' work for Braun (SK 4, T 3, ET 66).
+# Warm enamel whites, aluminium greys, charcoal type. Colour is a signal,
+# never decoration: Braun orange marks the active thing and little else.
+mode = "light"
+
+accent = "#d4521c"
+selection = "#d8d2c6"
+muted = "#8e8981"
+hyprland_active_border = "rgb(3a3935)"
+hyprland_inactive_border = "rgba(c9c3b8ff)"
+
+background = "#eeebe5"
+dark_background = "#e6e2da"
+darker_background = "#dcd7cd"
+lighter_background = "#d3cec4"
+
+foreground = "#2b2a27"
+dark_foreground = "#7a766e"
+light_foreground = "#45433f"
+bright_foreground = "#161614"
+
+red = "#c23b1e"
+orange = "#d4521c"
+yellow = "#a37400"
+green = "#4f7b48"
+cyan = "#3f7a7c"
+blue = "#3a5f86"
+magenta = "#8b4f6a"
+brown = "#7a5a3a"
+
+bright_red = "#d65a3c"
+bright_yellow = "#bf8c0c"
+bright_green = "#66935e"
+bright_cyan = "#55948f"
+bright_blue = "#5479a0"
+bright_magenta = "#a56a84"

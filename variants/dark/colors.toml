@@ -1,0 +1,35 @@
+# Rams Dark — the black Braun objects: ET 66, T 1000, the 606 shelving.
+# Charcoal body, aluminium edges, Braun orange and the ET 66 yellow as signals.
+mode = "dark"
+
+accent = "#f0692b"
+selection = "#3a3834"
+muted = "#6e6a63"
+hyprland_active_border = "rgb(b9b4aa)"
+hyprland_inactive_border = "rgba(34322eff)"
+
+background = "#1d1c1a"
+dark_background = "#171614"
+darker_background = "#121110"
+lighter_background = "#2e2c29"
+
+foreground = "#dedad2"
+dark_foreground = "#8f8a82"
+light_foreground = "#c8c4bc"
+bright_foreground = "#f4f1ea"
+
+red = "#e2553a"
+orange = "#f0692b"
+yellow = "#f2b705"
+green = "#8daa6e"
+cyan = "#7fb2ac"
+blue = "#8aa6c4"
+magenta = "#c48aa4"
+brown = "#a57e55"
+
+bright_red = "#ef7a62"
+bright_yellow = "#f7cc4a"
+bright_green = "#a8c28b"
+bright_cyan = "#9fcac4"
+bright_blue = "#a9c0d8"
+bright_magenta = "#d7a8bd"

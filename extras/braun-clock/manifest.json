@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "sehl.braun-clock",
+  "name": "Braun Clock",
+  "version": "1.0.0",
+  "author": "sehl",
+  "description": "Live Braun wall clock (after Rams and Lubs) over the Rams theme's clock wallpaper",
+  "kinds": ["service"],
+  "entryPoints": { "service": "Service.qml" }
+}
