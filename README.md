@@ -6,7 +6,7 @@ After Dieter Rams' work for Braun. *Weniger, aber besser.*
 
 Rams treats the desktop like a Braun object: a neutral body, honest
 materials, type that is easy to read, and one point of colour that means
-something.
+something. It comes in two variants:
 
 | | Rams | Rams Dark |
 |---|---|---|
@@ -14,50 +14,77 @@ something.
 | Body | warm enamel white `#eeebe5` | charcoal `#1d1c1a` |
 | Edge | charcoal `#3a3935` | aluminium `#b9b4aa` |
 | Signal | Braun orange `#d4521c` | Braun orange `#f0692b` |
-| Second hand | Braun yellow `#e9a800` | Braun yellow `#f2b705` |
+| Clock | paper-white lume, by day | glowing lume, by night |
 
-## Principles, as applied
+![Rams Dark](variants/dark/preview.png)
+
+## What you get
+
+**The clock.** The desktop is a live Braun wall clock, after Rams and
+Dietrich Lubs, built like a watch:
+
+- The whole screen is the dial, with a fine paper grain.
+- Hour indices are applied and the hands stand off the dial at three
+  heights. Each casts a soft shadow away from a light at the top left, and
+  the higher the hand, the further its shadow falls.
+- By day the lume channels are paper white. At night they glow.
+- The second hand is Braun yellow and steps like a quartz movement: one
+  short, damped tick a second. Mechanical (28,800 beats an hour) and smooth
+  movements are options.
+
+The same dial appears in three places:
+
+- **Desktop:** the `0-clock` wallpaper, the default. `omarchy theme bg next`
+  or double-click the desktop for the others.
+- **Screensaver:** while Omarchy's screensaver runs, it shows the night dial
+  with a mechanical sweep, drifting slowly against burn-in. Input passes
+  straight through to the stock screensaver, so dismissing and locking
+  behave as usual.
+- **Lock screen:** the dial replaces the blurred wallpaper, and the password
+  field becomes a slim slot below the hub.
+
+**Bar instruments.** The bar's status icons (battery, volume, microphone,
+wifi, Bluetooth, monitor, indicators, power profiles) are redrawn as Braun
+instruments in *Rams Instruments*, a small icon font in this repo:
+
+- Levels are counted in segments, like a Braun meter.
+- Inactive parts are hairlines rather than dimmed.
+- Charging is a single indicator dot.
+- Power profiles are one dial with the needle left, up or right.
+
+**ET 66 calculator.** A pocket calculator after the Braun ET 66: a dark
+body, a recessed display, convex dished keys, an orange clear key and the
+yellow equals key. Open it with `SUPER + ALT + C` or the calculator key; it
+takes the keyboard (Escape closes, Ctrl+C copies). It works the way the real
+one does: 2 + 3 × 4 = 20.
+
+**Everything else follows the same rules:**
 
 - **Colour is a signal.** Structure is grey. Orange marks the one thing that
-  is focused, selected or active: the selected menu row, keyboard focus,
-  the lock field while you type, the notification countdown, recording
-  indicators. Red means an error and nothing else. Syntax colouring in pi is
-  mostly ink: keywords are darker, only strings and numbers get colour.
-- **Honest surfaces.** Windows, menus, popups and the lock field are fully
-  opaque. No blur, shadows or gradients. Edges are 1px hairlines, or the 2px
-  window border.
-- **One radius.** 6px everywhere (Hyprland rounding, which the shell
-  mirrors), like the corners of an SK 4 or an ET 66 key.
-- **Calm motion.** One ease-out curve, short durations, no overshoot, no
-  slide-ins.
-- **Type does the work.** ABC Areal Mono for terminals, bar and menus, ABC
-  Areal for GTK apps and window group tabs. A short type scale, a slightly
-  looser spacing grid, and tooltips inverted like the labels on a Braun
-  control.
-- **Useful, not decorative.** The default wallpaper is a Braun wall clock
-  (after Rams and Dietrich Lubs) that keeps real time.
+  is focused, selected or active. Red means an error.
+- **Honest surfaces.** Windows, menus, popups and the lock field are opaque:
+  no blur or shadows, and hairline edges.
+- **One radius.** 6px everywhere.
+- **Calm motion.** One ease-out curve, short durations, no overshoot.
+- **Type does the work.**
+  - ABC Areal Mono for terminals, bar and menus; ABC Areal for GTK apps,
+    Obsidian and window group tabs.
+  - A short type scale, and tooltips inverted like the labels on a Braun
+    control.
+- **Quiet code.** Neovim, VS Code, Obsidian and pi colour code the same way:
+  - mostly ink, with keywords set apart by weight rather than hue;
+  - strings green, numbers orange, types brown;
+  - no italics.
+- **GTK** apps get the orange accent.
 
-## What's in it
-
-| File | What it does |
-|---|---|
-| `colors.toml` | Palette. Terminals, Neovim, VS Code, Chromium, Obsidian, keyboard RGB etc. are generated from it |
-| `hyprland.lua` | Borders, radius, opacity, no blur/shadow, motion, group tabs |
-| `shell.toml` | Every Omarchy shell surface: bar, controls, menus, launcher, notifications, tooltips, lock, polkit, picker |
-| `pi.json` | Quiet palette for the pi coding agent |
-| `btop.theme` | Meters read like a level indicator: grey, then ink, then orange at the top |
-| `backgrounds/` | Clock, SK 4 grille, T 3 perforation, ET 66 keys, the motto set in Areal |
-| `extras/braun-clock/` | `sehl.braun-clock` shell plugin: live hands for the clock wallpaper |
-| `hooks/rams-typography.sh` | theme-set hook: Areal on Rams, your previous fonts back on other themes |
-| `tools/build.py` | Regenerates `hyprland.lua`, `shell.toml`, `pi.json`, `btop.theme` for both variants from `colors.toml` |
-| `tools/wallpapers.py` | Regenerates the wallpapers (needs `rsvg-convert` and Areal) |
-
-The dark variant lives in `variants/dark/` and has the same files.
+Leaving Rams undoes what it changed. Your previous fonts, GTK accent and
+calculator key come back, and the clock and bar icons go away.
 
 ## Install
 
-1. Fonts. ABC Areal is a commercial Dinamo typeface and is **not** in this
-   repo. Install your licensed copy:
+1. **Fonts.** ABC Areal is a commercial Dinamo typeface and is **not** in
+   this repo. Its licence forbids putting it in public repositories. Install
+   your licensed copy:
 
    ```bash
    mkdir -p ~/.local/share/fonts/ABCAreal
@@ -65,54 +92,98 @@ The dark variant lives in `variants/dark/` and has the same files.
    fc-cache -f
    ```
 
-2. Theme, clock plugin and typography hook:
+   Without it, the clock and calculator fall back to Inter or Noto Sans, and
+   the typography hook leaves your fonts alone.
+
+2. **Everything else:**
 
    ```bash
    git clone https://github.com/benjaminsehl/omarchy-rams.git ~/.local/share/omarchy-rams
-   ~/.local/share/omarchy-rams/install.sh
-   omarchy theme set rams        # or rams-dark
+   ~/.local/share/omarchy-rams/install.sh            # or --no-lock for the stock lock screen
+   omarchy theme set rams                             # or rams-dark
    ```
 
-`install.sh` links the themes to the clone instead of using
-`omarchy theme install`. Omarchy drops `hyprland.lua` from themes installed
-that way, and the clock plugin and the hook would be left out. If you do
-use `omarchy theme install`, you get the palette, shell, wallpapers and
-borders, but not the motion, opacity or radius.
+`install.sh` links the themes to the clone, installs the plugins and the
+icon font, sets up the lock screen and installs the hook. It is safe to
+re-run. A plain `omarchy theme install` would only give you the palette,
+shell and wallpapers: Omarchy drops Lua from themes installed that way, and
+it doesn't install plugins or hooks.
 
-## The clock
+### Clock options
 
-`0-clock.png` is the clock stopped at 10:08. With a Rams theme and that
-wallpaper both active, `sehl.braun-clock` maps a clock-sized layer over it
-and draws the same face with moving hands. The second hand steps once a
-second, like a quartz movement. For any other wallpaper or theme, the plugin
-maps nothing. The lock screen and the wallpaper picker see the static image.
+Optional, in `~/.config/omarchy-rams/clock.json` (reloads live):
 
-Pick another wallpaper with `omarchy theme bg next` or by double-clicking the
-desktop.
+```json
+{
+  "movement": "quartz",
+  "screensaverMovement": "mechanical",
+  "screensaverDark": true,
+  "size": "classic",
+  "seconds": true,
+  "screensaver": true
+}
+```
 
-The geometry lives in two places that must agree: `CLOCK` in
-`tools/wallpapers.py` and `extras/braun-clock/Clock.qml`.
+- `movement`: `quartz`, `mechanical` or `smooth`.
+- `size`: `classic` fills the screen's height; `compact` sits in the middle.
+- To see the screensaver dial now, run `omarchy-shell braunClock preview`
+  (click to close).
 
-## Typography hook
+## How it's put together
 
-Omarchy's font is system-wide, not part of a theme. The hook makes it follow
-the theme:
+| Path | What it is |
+|---|---|
+| `colors.toml` | Palette. Terminals, Chromium, keyboard RGB, helix etc. are generated from it |
+| `hyprland.lua` | Borders, radius, opacity, motion, group tabs, ET 66 keys |
+| `shell.toml` | Every Omarchy shell surface |
+| `neovim.lua`, `vscode-theme.json`, `obsidian.css`, `pi.json`, `btop.theme` | Editor and tool themes |
+| `backgrounds/` | The clock, SK 4 grille, T 3 perforation, ET 66 keys, the motto set in Areal |
+| `extras/braun-clock/` | `sehl.braun-clock`: `Dial.qml` (the dial), `Service.qml` (desktop, screensaver, IPC) |
+| `extras/lock/patch-lockview.py` | Patches a clone of `omarchy.lock`. Only its view changes; PAM and auth stay stock |
+| `extras/instruments/RamsInstruments.otf` | The bar icon font |
+| `extras/et66/` | `sehl.et66`, the calculator |
+| `hooks/rams-typography.sh` | theme-set hook: fonts, icon font, GTK accent on and off with the theme |
+| `tools/build.py` | Regenerates the per-variant files above from `colors.toml` |
+| `tools/render-dial/` | Renders `0-clock.png` from `Dial.qml`: `RAMS_REPO=$PWD qs -p tools/render-dial` |
+| `tools/wallpapers.py` | The other wallpapers (needs `rsvg-convert` and Areal) |
+| `tools/instruments.py` | Builds the icon font: `uv run --with fonttools tools/instruments.py` |
 
-- Switching to `rams*` saves your fonts (to
-  `~/.local/state/rams-theme/fonts.prev`) and sets Areal. In Omarchy that
-  means `omarchy font set` for terminals, bar and menus. In GTK it means
-  `font-name`, `document-font-name` and `monospace-font-name`.
-- Switching to anything else restores the saved fonts.
+The dark variant lives in `variants/dark/`, with the same files.
 
-`omarchy hook install` copies the script, so re-run `./install.sh` after
-editing it.
+Notes for hacking on it:
+
+- After editing a plugin, run `omarchy restart shell`. The shell's hot
+  reload can keep a cached copy.
+- `omarchy hook install` copies the hook, so re-run `install.sh` after
+  editing it.
+- The lock screen is a clone, so it won't pick up Omarchy's future changes
+  to the stock lock view. After an Omarchy update that touches the lock,
+  re-clone it:
+
+  ```bash
+  omarchy plugin disable $USER.lock && rm -r ~/.config/omarchy/plugins/$USER.lock && ./install.sh
+  ```
+
+  The patch refuses to apply if the stock view has changed shape. In that
+  case you keep the stock lock screen.
 
 ## Uninstall
 
+Switch to another theme first, so the hook restores your fonts and accent.
+Then:
+
 ```bash
+omarchy plugin disable sehl.braun-clock; omarchy plugin disable sehl.et66
+omarchy plugin disable $USER.lock        # restores the stock lock screen
+rm ~/.config/omarchy/plugins/{sehl.braun-clock,sehl.et66}
+rm -r ~/.config/omarchy/plugins/$USER.lock
 rm ~/.config/omarchy/themes/rams ~/.config/omarchy/themes/rams-dark
-omarchy plugin disable sehl.braun-clock && rm ~/.config/omarchy/plugins/sehl.braun-clock
 rm ~/.config/omarchy/hooks/theme-set.d/rams-typography.sh
+rm -r ~/.local/share/fonts/RamsInstruments && fc-cache -f
 ```
 
-Switch to another theme first, so the hook restores your fonts.
+## Licence
+
+MIT, for the code, configuration, wallpapers and the Rams Instruments font.
+ABC Areal is not included. Dieter Rams, Dietrich Lubs and Braun are named
+for attribution only; this project isn't affiliated with them.

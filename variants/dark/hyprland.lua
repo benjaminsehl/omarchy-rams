@@ -70,3 +70,10 @@ hl.animation({ leaf = "fade", enabled = true, speed = 2.0, bezier = "rams" })
 hl.animation({ leaf = "layers", enabled = true, speed = 2.4, bezier = "rams" })
 hl.animation({ leaf = "layersIn", enabled = true, speed = 2.4, bezier = "rams", style = "fade" })
 hl.animation({ leaf = "layersOut", enabled = true, speed = 1.6, bezier = "rams", style = "fade" })
+
+-- The ET 66 calculator (sehl.et66): SUPER+ALT+C and the calculator key,
+-- while a Rams theme is on. Other themes reload without these lines and the
+-- calculator key goes back to Omarchy's calculator.
+hl.unbind("XF86Calculator")
+o.bind("XF86Calculator", "ET 66 calculator", "omarchy-shell et66 toggle")
+o.bind("SUPER + ALT + C", "ET 66 calculator", "omarchy-shell et66 toggle")

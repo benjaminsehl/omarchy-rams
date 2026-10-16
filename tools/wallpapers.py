@@ -2,8 +2,7 @@
 """Generate the Rams wallpapers as SVG, then render PNGs with rsvg-convert.
 
 Quiet compositions after Braun objects, each with one point of colour:
-  0-clock        Braun wall clock (Rams / Lubs). Static at 10:08; the
-                 sehl.braun-clock plugin draws the live hands over it.
+  (0-clock comes from the live dial itself: RAMS_REPO=$PWD qs -p tools/render-dial)
   1-grille       SK 4 lid: long horizontal slots, an orange power indicator
   2-perforation  T 3 / T 1000: a circular field of speaker holes, one orange
   3-keys         ET 66: a grid of round keys, orange and yellow function keys
@@ -24,13 +23,13 @@ PALETTES = {
         out=ROOT / "backgrounds",
         bg="#eeebe5", shade="#dfdad1", ink="#2b2a27", soft="#c9c3b8",
         key="#e6e2da", orange="#d4521c", yellow="#f2b705", text="#7a766e",
-        face="#f7f5f0", rim="#d3cec4", hand2="#e9a800",
+        face="#f7f5f0", rim="#d3cec4",
     ),
     "dark": dict(
         out=ROOT / "variants/dark/backgrounds",
         bg="#1d1c1a", shade="#141312", ink="#dedad2", soft="#34322e",
         key="#2a2926", orange="#f0692b", yellow="#f2b705", text="#8f8a82",
-        face="#121110", rim="#34322e", hand2="#f2b705",
+        face="#121110", rim="#34322e",
     ),
 }
 
@@ -41,53 +40,6 @@ def svg(p, body):
         f'viewBox="0 0 {W} {H}"><rect width="{W}" height="{H}" fill="{p["bg"]}"/>'
         f"{body}</svg>"
     )
-
-
-# Clock geometry, in units of the face radius R. Mirrored in
-# extras/braun-clock/Clock.qml; keep the two in step.
-CLOCK = dict(
-    diameter=0.56,            # of canvas height; centred on the canvas
-    rim=0.012,
-    minute_tick=(0.915, 0.965, 0.010),   # inner, outer, width
-    hour_tick=(0.855, 0.965, 0.026),
-    numeral_radius=0.725, numeral_size=0.135,
-    hour_hand=(0.50, 0.10, 0.052),       # length, tail, width
-    minute_hand=(0.80, 0.10, 0.036),
-    second_hand=(0.86, 0.24, 0.014),
-    cap=0.050,
-)
-
-
-def clock(p, h=10, m=8, s=37):
-    c = CLOCK
-    R = H * c["diameter"] / 2
-    cx, cy = W / 2, H / 2
-    out = [f'<circle cx="{cx}" cy="{cy}" r="{R}" fill="{p["face"]}" '
-           f'stroke="{p["rim"]}" stroke-width="{R * c["rim"]}"/>']
-    for i in range(60):
-        a, b, w = c["hour_tick"] if i % 5 == 0 else c["minute_tick"]
-        out.append(f'<rect x="{cx - R * w / 2}" y="{cy - R * b}" width="{R * w}" '
-                   f'height="{R * (b - a)}" fill="{p["ink"]}" '
-                   f'transform="rotate({i * 6} {cx} {cy})"/>')
-    for n in range(1, 13):
-        ang = math.radians(n * 30)
-        x = cx + R * c["numeral_radius"] * math.sin(ang)
-        y = cy - R * c["numeral_radius"] * math.cos(ang)
-        out.append(f'<text x="{x}" y="{y}" text-anchor="middle" dominant-baseline="central" '
-                   f'font-family="ABC Areal" font-weight="500" font-size="{R * c["numeral_size"]}" '
-                   f'fill="{p["ink"]}">{n}</text>')
-
-    def hand(angle, spec, color):
-        length, tail, w = spec
-        return (f'<rect x="{cx - R * w / 2}" y="{cy - R * length}" width="{R * w}" '
-                f'height="{R * (length + tail)}" fill="{color}" '
-                f'transform="rotate({angle} {cx} {cy})"/>')
-
-    out.append(hand((h % 12 + m / 60) * 30, c["hour_hand"], p["ink"]))
-    out.append(hand((m + s / 60) * 6, c["minute_hand"], p["ink"]))
-    out.append(hand(s * 6, c["second_hand"], p["hand2"]))
-    out.append(f'<circle cx="{cx}" cy="{cy}" r="{R * c["cap"]}" fill="{p["hand2"]}"/>')
-    return svg(p, "".join(out))
 
 
 def grille(p):
@@ -159,7 +111,7 @@ def main():
         raise SystemExit("rsvg-convert not found (pacman: librsvg)")
     for p in PALETTES.values():
         p["out"].mkdir(parents=True, exist_ok=True)
-        for name, fn in [("0-clock", clock), ("1-grille", grille), ("2-perforation", perforation),
+        for name, fn in [("1-grille", grille), ("2-perforation", perforation),
                          ("3-keys", keys), ("4-weniger", weniger)]:
             png = p["out"] / f"{name}.png"
             subprocess.run(["rsvg-convert", "-o", str(png), "-"],

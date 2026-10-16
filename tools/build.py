@@ -121,6 +121,13 @@ hl.animation({{ leaf = "fade", enabled = true, speed = 2.0, bezier = "rams" }})
 hl.animation({{ leaf = "layers", enabled = true, speed = 2.4, bezier = "rams" }})
 hl.animation({{ leaf = "layersIn", enabled = true, speed = 2.4, bezier = "rams", style = "fade" }})
 hl.animation({{ leaf = "layersOut", enabled = true, speed = 1.6, bezier = "rams", style = "fade" }})
+
+-- The ET 66 calculator (sehl.et66): SUPER+ALT+C and the calculator key,
+-- while a Rams theme is on. Other themes reload without these lines and the
+-- calculator key goes back to Omarchy's calculator.
+hl.unbind("XF86Calculator")
+o.bind("XF86Calculator", "ET 66 calculator", "omarchy-shell et66 toggle")
+o.bind("SUPER + ALT + C", "ET 66 calculator", "omarchy-shell et66 toggle")
 '''
 
 
@@ -362,11 +369,202 @@ def btop(c):
     return "\n".join(lines) + "\n"
 
 
+def quiet(c):
+    """The palette for syntax: ink and greys, brown for types, green for
+    strings, orange for numbers. Hue is reserved for meaning."""
+    q = dict(c)
+    q.update(blue=c["foreground"], cyan=c["foreground"], bright_cyan=c["label"],
+             magenta=c["brown"], bright_magenta=c["bright_foreground"],
+             bright_blue=c["label"], yellow=c["brown"], bright_yellow=c["brown"],
+             orange=c["accent"])
+    return q
+
+
+def render(tpl, vals):
+    import re
+    def sub(m):
+        key = m.group(1)
+        return str(vals.get(key, m.group(0)))
+    return re.sub(r"\{\{\s*([a-z_]+)\s*\}\}", sub, tpl)
+
+
+def vscode(c):
+    """Omarchy's full VS Code template, rendered with the quiet syntax
+    palette; the integrated terminal keeps the real ANSI colours."""
+    tpl = pathlib.Path("/usr/share/omarchy/default/themed/vscode-theme.json.tpl").read_text()
+    vals = quiet(c)
+    vals["theme_type"] = "light" if c["light"] else "dark"
+    vals["selection_background"] = c["selection"]
+    vals["selection_foreground"] = c["bright_foreground"]
+    theme = json.loads(render(tpl, vals))
+    real = {"Black": c["background"], "Red": c["red"], "Green": c["green"], "Yellow": c["yellow"],
+            "Blue": c["blue"], "Magenta": c["magenta"], "Cyan": c["cyan"], "White": c["foreground"]}
+    bright = {"Black": c["muted"], "Red": c["bright_red"], "Green": c["bright_green"],
+              "Yellow": c["bright_yellow"], "Blue": c["bright_blue"], "Magenta": c["bright_magenta"],
+              "Cyan": c["bright_cyan"], "White": c["bright_foreground"]}
+    for k, v in real.items():
+        theme["colors"][f"terminal.ansi{k}"] = v
+    for k, v in bright.items():
+        theme["colors"][f"terminal.ansiBright{k}"] = v
+    # No italics anywhere; weight and darkness carry emphasis.
+    for rule in theme.get("tokenColors", []):
+        st = rule.get("settings", {})
+        if "fontStyle" in st:
+            st["fontStyle"] = " ".join(x for x in st["fontStyle"].split() if x != "italic")
+    return json.dumps(theme, indent=2) + "\n"
+
+
+def neovim(c):
+    """aether.nvim (Omarchy's generic Neovim theme, with hot reload) with
+    the Rams palette and quiet highlights."""
+    q = quiet(c)
+    keys = ["background", "dark_background", "darker_background", "lighter_background",
+            "foreground", "dark_foreground", "light_foreground", "bright_foreground", "muted",
+            "red", "yellow", "orange", "green", "cyan", "blue", "magenta", "brown",
+            "bright_red", "bright_yellow", "bright_green", "bright_cyan", "bright_blue", "bright_magenta"]
+    short = {"background": "bg", "dark_background": "dark_bg", "darker_background": "darker_bg",
+             "lighter_background": "lighter_bg", "foreground": "fg", "dark_foreground": "dark_fg",
+             "light_foreground": "light_fg", "bright_foreground": "bright_fg"}
+    colors = "\n".join(f'        {short.get(k, k)} = "{c[k]}",' for k in keys)
+    ink, fg, lab, dim = c["bright_foreground"], c["foreground"], c["label"], mix(c["foreground"], c["background"], 0.55)
+    acc, grn, brn, red = c["accent"], c["green"], c["brown"], c["red"]
+    hl = {
+        "Comment": dict(fg=dim), "@comment": dict(fg=dim),
+        "Keyword": dict(fg=ink, bold=True), "@keyword": dict(fg=ink, bold=True),
+        "@keyword.function": dict(fg=ink, bold=True), "@keyword.return": dict(fg=ink, bold=True),
+        "Conditional": dict(fg=ink, bold=True), "Repeat": dict(fg=ink, bold=True),
+        "Statement": dict(fg=ink), "Function": dict(fg=fg), "@function": dict(fg=fg),
+        "@function.call": dict(fg=fg), "@method": dict(fg=fg), "@variable": dict(fg=fg),
+        "@variable.member": dict(fg=fg), "@property": dict(fg=fg), "@parameter": dict(fg=fg),
+        "Identifier": dict(fg=fg), "String": dict(fg=grn), "@string": dict(fg=grn),
+        "Number": dict(fg=acc), "@number": dict(fg=acc), "Boolean": dict(fg=acc), "@boolean": dict(fg=acc),
+        "Constant": dict(fg=brn), "@constant": dict(fg=brn), "Type": dict(fg=brn), "@type": dict(fg=brn),
+        "@type.builtin": dict(fg=brn), "Operator": dict(fg=lab), "@operator": dict(fg=lab),
+        "Delimiter": dict(fg=lab), "@punctuation": dict(fg=lab), "@punctuation.bracket": dict(fg=lab),
+        "@punctuation.delimiter": dict(fg=lab), "Special": dict(fg=fg), "PreProc": dict(fg=ink),
+        "@tag": dict(fg=ink), "@tag.attribute": dict(fg=fg), "@markup.heading": dict(fg=ink, bold=True),
+        "@markup.link": dict(fg=acc), "@markup.link.url": dict(fg=lab, underline=True),
+        "LineNr": dict(fg=c["muted"]), "CursorLineNr": dict(fg=acc, bold=True),
+        "MatchParen": dict(fg=acc, bold=True), "Search": dict(fg=c["background"], bg=c["yellow"]),
+        "IncSearch": dict(fg=c["background"], bg=acc), "CurSearch": dict(fg=c["background"], bg=acc),
+        "DiagnosticError": dict(fg=red), "DiagnosticWarn": dict(fg=acc),
+        "DiagnosticInfo": dict(fg=lab), "DiagnosticHint": dict(fg=lab),
+        "WinSeparator": dict(fg=c["hairline"]), "FloatBorder": dict(fg=c["hairline"]),
+    }
+    def lua(v):
+        return "{ " + ", ".join(f'{k} = {"true" if x is True else chr(34) + x + chr(34)}' for k, x in v.items()) + " }"
+    hls = "\n".join(f'          hl["{k}"] = {lua(v)}' for k, v in hl.items())
+    return f'''-- Rams: generated by tools/build.py. aether.nvim with the Rams palette and
+-- quiet highlights: mostly ink, keywords by weight, strings green, numbers
+-- orange, no italics.
+return {{
+  {{
+    "bjarneo/aether.nvim",
+    branch = "v3",
+    name = "aether",
+    priority = 1000,
+    opts = {{
+      styles = {{
+        comments = {{ italic = false }},
+        keywords = {{ italic = false }},
+      }},
+      colors = {{
+{colors}
+        accent = "{acc}",
+        cursor = "{ink}",
+        foreground = "{fg}",
+        background = "{c["background"]}",
+        selection = "{c["selection"]}",
+        selection_foreground = "{ink}",
+        selection_background = "{c["selection"]}",
+      }},
+      on_highlights = function(hl)
+{hls}
+      end,
+    }},
+  }},
+  {{
+    "LazyVim/LazyVim",
+    opts = {{
+      colorscheme = "aether",
+    }},
+  }},
+}}
+'''
+
+
+def obsidian(c):
+    fg, bg, acc, lab = c["foreground"], c["background"], c["accent"], c["label"]
+    ink, hair, panel = c["bright_foreground"], c["hairline"], c["panel"]
+    return f"""/* Rams: generated by tools/build.py. Ink on paper, one accent. */
+
+.theme-dark, .theme-light {{
+  --background-primary: {bg};
+  --background-primary-alt: {panel};
+  --background-secondary: {panel};
+  --background-secondary-alt: {c["panel_alt"]};
+  --background-modifier-border: {hair};
+  --background-modifier-hover: color-mix(in srgb, {fg} 6%, transparent);
+  --text-normal: {fg};
+  --text-muted: {lab};
+  --text-faint: color-mix(in srgb, {fg} 45%, transparent);
+  --text-selection: {c["selection"]};
+  --text-link: {acc};
+  --link-external-color: {acc};
+  --text-accent: {acc};
+  --text-accent-hover: {acc};
+  --interactive-accent: {acc};
+  --interactive-accent-hover: {acc};
+  --text-error: {c["red"]};
+  --text-success: {c["green"]};
+  --text-title-h1: {ink};
+  --text-title-h2: {ink};
+  --text-title-h3: {ink};
+  --text-title-h4: {fg};
+  --text-title-h5: {lab};
+  --text-title-h6: {lab};
+  --h1-weight: 600; --h2-weight: 600; --h3-weight: 500;
+  --code-normal: {c["brown"]};
+  --tag-color: {lab};
+  --tag-background: transparent;
+  --tag-border-color: {hair};
+  --tag-border-width: 1px;
+  --blockquote-border-color: {acc};
+  --hr-color: {hair};
+  --graph-line: {hair};
+  --graph-node: {lab};
+  --graph-node-focused: {acc};
+  --graph-node-tag: {c["brown"]};
+  --graph-node-attachment: {c["green"]};
+  --font-interface-theme: "ABC Areal", Inter, sans-serif;
+  --font-text-theme: "ABC Areal", Inter, sans-serif;
+  --font-monospace-theme: "ABC Areal Mono", monospace;
+  --radius-s: 4px; --radius-m: {RADIUS}px; --radius-l: {RADIUS}px;
+  --shadow-s: none; --shadow-l: none;
+}}
+
+.cm-header-1, .markdown-rendered h1,
+.cm-header-2, .markdown-rendered h2,
+.cm-header-3, .markdown-rendered h3 {{ color: {ink}; letter-spacing: -0.01em; }}
+.markdown-rendered code {{ color: {c["brown"]}; }}
+.cm-s-obsidian span.cm-keyword {{ color: {ink}; font-weight: 600; }}
+.cm-s-obsidian span.cm-string {{ color: {c["green"]}; }}
+.cm-s-obsidian span.cm-number {{ color: {acc}; }}
+.cm-s-obsidian span.cm-comment {{ color: {lab}; font-style: normal; }}
+.cm-s-obsidian span.cm-operator, .cm-s-obsidian span.cm-def {{ color: {fg}; }}
+.markdown-rendered blockquote {{ border-left: 2px solid {acc}; font-style: normal; }}
+.workspace-leaf.mod-active .workspace-leaf-header-title,
+.nav-file-title.is-active, .search-result-file-title {{ color: {acc}; }}
+em, .cm-em {{ font-style: italic; }}
+"""
+
+
 def main():
     for d in VARIANTS:
         c = palette(d)
         for name, fn in [("hyprland.lua", hyprland), ("shell.toml", shell),
-                         ("pi.json", pi), ("btop.theme", btop)]:
+                         ("pi.json", pi), ("btop.theme", btop), ("neovim.lua", neovim),
+                         ("vscode-theme.json", vscode), ("obsidian.css", obsidian)]:
             (d / name).write_text(fn(c))
             print((d / name).relative_to(ROOT))
 

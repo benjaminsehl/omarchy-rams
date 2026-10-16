@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "sehl.et66",
+  "name": "ET 66 Calculator",
+  "version": "1.0.0",
+  "author": "sehl",
+  "description": "A pocket calculator after the Braun ET 66. Rams themes bind it to the calculator keys.",
+  "kinds": ["service"],
+  "entryPoints": { "service": "Service.qml" }
+}
