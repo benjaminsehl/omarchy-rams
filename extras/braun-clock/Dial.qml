@@ -21,10 +21,14 @@ Item {
   property bool showSeconds: true
   property bool drift: false        // slow wander against burn-in
   property var fixedTime: null      // Date for stills; null = now
+  // The dial's field. Unset, it's the dial's own tone (noir at night); the
+  // desktop passes the theme background, so popovers and the dial are one
+  // material.
+  property color fieldColor: "transparent"
 
   // ------------------------------------------------------------ palette
   // Ink is a deep tone of the dial, not black, so it reads as printed.
-  readonly property color dialColor: dark ? "#0e0e0d" : "#efece6"
+  readonly property color dialColor: fieldColor.a > 0 ? fieldColor : (dark ? "#0e0e0d" : "#efece6")
   readonly property color inkColor: dark ? "#3a3833" : "#3a3631"
   readonly property color lumeDay: "#f6f3ec"
   readonly property color lumeNight: "#b2f0a4"

@@ -12,8 +12,9 @@ ShellRoot {
   // Set by the caller: RAMS_REPO=$PWD qs -p tools/render-dial
   readonly property string repo: Quickshell.env("RAMS_REPO") + "/"
   property var jobs: [
-    { dark: false, out: repo + "backgrounds/0-clock.png" },
-    { dark: true, out: repo + "variants/dark/backgrounds/0-clock.png" }
+    // Fields match each theme's background, as on the live desktop.
+    { dark: false, field: "#eeebe5", out: repo + "backgrounds/0-clock.png" },
+    { dark: true, field: "transparent", out: repo + "variants/dark/backgrounds/0-clock.png" }
   ]
   property int job: 0
 
@@ -33,6 +34,7 @@ ShellRoot {
         item.running = false
         item.fixedTime = new Date(2026, 0, 1, 10, 8, 37)
         item.dark = Qt.binding(function() { return root.jobs[root.job].dark })
+        item.fieldColor = Qt.binding(function() { return root.jobs[root.job].field })
       }
     }
 

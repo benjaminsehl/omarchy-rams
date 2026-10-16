@@ -20,19 +20,19 @@ ui="ABC Areal 11"
 doc="ABC Areal 12"
 gtkmono="ABC Areal Mono 11"
 
-icons_conf="${XDG_CONFIG_HOME:-$HOME/.config}/fontconfig/conf.d/60-rams-instruments.conf"
+fc_dir="${XDG_CONFIG_HOME:-$HOME/.config}/fontconfig/conf.d"
+icons_conf="$fc_dir/60-rams.conf"
 restart_shell=0
 
-icons_on() {
-  [[ -n $(fc-list "Rams Instruments" family) ]] || return 0
-  [[ -f $icons_conf ]] && return 0
-  mkdir -p "$(dirname "$icons_conf")"
-  cat >"$icons_conf" <<'XML'
+# While a Rams theme is on, "Rams Instruments" goes into the fallback chain
+# right after Areal Mono (conf.d runs before fonts.conf, whose prepend_first
+# then puts the text face ahead of it), so the shell's icons become Braun
+# instruments.
+rams_conf() {
+  cat <<'XML'
 <?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-<!-- Written by the Rams theme's rams-typography hook; removed on other themes.
-     conf.d runs before fonts.conf, whose prepend_first then puts the text face
-     ahead of this one: ABC Areal Mono, Rams Instruments, then the rest. -->
+<!-- Written by the Rams theme's rams-typography hook; removed on other themes. -->
 <fontconfig>
   <match target="pattern">
     <test name="family" qual="any"><string>monospace</string></test>
@@ -40,12 +40,21 @@ icons_on() {
   </match>
 </fontconfig>
 XML
+}
+
+icons_on() {
+  rm -f "$fc_dir/60-rams-instruments.conf"   # earlier name
+  local want
+  want=$(rams_conf)
+  [[ -f $icons_conf && $(cat "$icons_conf") == "$want" ]] && return 0
+  mkdir -p "$fc_dir"
+  printf '%s\n' "$want" >"$icons_conf"
   restart_shell=1
 }
 
 icons_off() {
-  [[ -f $icons_conf ]] || return 0
-  rm -f "$icons_conf"
+  [[ -f $icons_conf || -f $fc_dir/60-rams-instruments.conf ]] || return 0
+  rm -f "$icons_conf" "$fc_dir/60-rams-instruments.conf"
   restart_shell=1
 }
 
@@ -80,9 +89,11 @@ calc_off() {
 
 have_areal() { [[ -n $(fc-list "$mono" family) ]]; }
 
-# omarchy-font-set restarts the shell itself.
+# omarchy-font-set restarts the shell itself; rebuild the cache first so it
+# starts with the right fonts.
 set_mono() {
   [[ $(omarchy-font-current 2>/dev/null) == "$1" ]] && return 0
+  (( restart_shell )) && fc-cache -f >/dev/null 2>&1
   omarchy-font-set "$1" >/dev/null 2>&1
   restart_shell=0
 }

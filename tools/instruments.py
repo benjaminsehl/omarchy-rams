@@ -305,6 +305,178 @@ def cup():
     return g
 
 
+# ------------------------------------------------------ panels and menus
+
+def calendar():
+    g = G()
+    g.frame(60, CY - 330, 772, CY + 290, 70, W * 0.85)
+    g.rrect(60, CY + 150, 772, CY + 290, 40)
+    g.rrect(220, CY + 250, 284, CY + 400, 32)
+    g.rrect(548, CY + 250, 612, CY + 400, 32)
+    g.rrect(470, CY - 200, 610, CY - 60, 22)
+    return g
+
+
+def chevron(direction):
+    g = G()
+    t = W
+    if direction == "left":
+        g.line(520, CY + 260, 300, CY, t); g.line(300, CY, 520, CY - 260, t)
+    elif direction == "right":
+        g.line(312, CY + 260, 532, CY, t); g.line(532, CY, 312, CY - 260, t)
+    else:  # down
+        g.line(156, CY + 110, 416, CY - 150, t); g.line(416, CY - 150, 676, CY + 110, t)
+    return g
+
+
+def check():
+    g = G()
+    g.line(140, CY, 330, CY - 190, W); g.line(330, CY - 190, 700, CY + 220, W)
+    return g
+
+
+def close_circle():
+    g = G()
+    g.ring(416, CY, 360, W)
+    g.line(286, CY - 130, 546, CY + 130, W); g.line(286, CY + 130, 546, CY - 130, W)
+    return g
+
+
+def lock():
+    g = G()
+    g.rrect(130, CY - 360, 702, CY + 60, 70)
+    g.arc(416, CY + 70, 200, 0, 180, W, caps=False)
+    g.rrect(216 - W / 2, CY + 20, 216 + W / 2, CY + 80, 0)
+    g.rrect(616 - W / 2, CY + 20, 616 + W / 2, CY + 80, 0)
+    return g
+
+
+def refresh():
+    g = G()
+    g.arc(416, CY, 300, 60, 340, W)
+    a = math.radians(60)
+    tip = (416 + 300 * math.cos(a), CY + 300 * math.sin(a))
+    g.poly([(tip[0] + 110, tip[1] + 40), (tip[0] - 120, tip[1] + 60), (tip[0] - 10, tip[1] - 150)])
+    return g
+
+
+def camera():
+    g = G()
+    g.frame(20, CY - 270, 812, CY + 250, 70, W * 0.85)
+    g.rrect(250, CY + 250, 470, CY + 330, 30)
+    g.ring(416, CY - 10, 170, W * 0.85)
+    g.circle(416, CY - 10, 60)
+    return g
+
+
+def loudspeaker():
+    """A Braun loudspeaker: a cabinet with one large and one small driver."""
+    g = G()
+    g.frame(150, CY - 380, 682, CY + 380, 70, W * 0.8)
+    g.ring(416, CY - 110, 170, W * 0.8)
+    g.circle(416, CY - 110, 46)
+    g.circle(416, CY + 220, 62)
+    return g
+
+
+def marker():
+    g = G()
+    g.ring(416, CY + 130, 230, W)
+    g.poly([(250, CY - 30), (582, CY - 30), (416, CY - 380)])
+    g.circle(416, CY + 130, 70)
+    return g
+
+
+# Weather: a filled cloud, a sun with short rays, a crescent moon.
+def cloud_shape(g, ox=0, oy=0, k=1.0):
+    def X(x): return ox + x * k
+    def Y(y): return oy + y * k
+    g.circle(X(280), Y(CY - 40), 150 * k)
+    g.circle(X(470), Y(CY + 60), 210 * k)
+    g.circle(X(640), Y(CY - 50), 140 * k)
+    g.rrect(X(130), Y(CY - 190), X(780), Y(CY - 40), 75 * k)
+
+
+def sun_shape(g, cx=416, cy=CY, r=170, rays=True):
+    g.circle(cx, cy, r)
+    if rays:
+        for i in range(8):
+            a = math.radians(i * 45)
+            g.line(cx + (r + 70) * math.cos(a), cy + (r + 70) * math.sin(a),
+                   cx + (r + 150) * math.cos(a), cy + (r + 150) * math.sin(a), W * 0.8)
+
+
+def moon_shape(g, cx=416, cy=CY, r=300):
+    # Crescent: outer circle minus an offset circle, as one polygon.
+    pts = []
+    ox, oy, orr = cx + r * 0.42, cy + r * 0.30, r * 0.82
+    for i in range(64):
+        a = 2 * math.pi * i / 64
+        x, y = cx + r * math.cos(a), cy + r * math.sin(a)
+        if math.hypot(x - ox, y - oy) > orr:
+            pts.append((x, y))
+    # Walk back along the inner circle between the two intersections.
+    inner = []
+    for i in range(64):
+        a = 2 * math.pi * i / 64
+        x, y = ox + orr * math.cos(a), oy + orr * math.sin(a)
+        if math.hypot(x - cx, y - cy) < r:
+            inner.append((x, y, math.atan2(y - cy, x - cx)))
+    # Order outer points by angle (start after the gap), inner reversed.
+    import cmath
+    def ang(p): return math.atan2(p[1] - cy, p[0] - cx)
+    gap = math.atan2(oy - cy, ox - cx)
+    def rel(a): return (a - gap) % (2 * math.pi)
+    outer = sorted(pts, key=lambda p: rel(ang(p)))
+    inner = sorted(inner, key=lambda p: -rel(p[2]))
+    g.poly(outer + [(x, y) for x, y, _ in inner])
+
+
+def weather(kind, night=False):
+    g = G()
+    if kind == "clear":
+        (moon_shape if night else sun_shape)(g)
+        return g
+    if kind == "partly":
+        if night:
+            moon_shape(g, 560, CY + 200, 170)
+        else:
+            sun_shape(g, 560, CY + 210, 120, rays=False)
+            for i in range(5):
+                a = math.radians(-20 + i * 45)
+                g.line(560 + 175 * math.cos(a), CY + 210 + 175 * math.sin(a),
+                       560 + 235 * math.cos(a), CY + 210 + 235 * math.sin(a), W * 0.7)
+        cloud_shape(g, -40, -80, 0.9)
+        return g
+    if kind == "fog":
+        for i, (x0, x1) in enumerate(((120, 712), (60, 772), (160, 672))):
+            g.line(x0, CY + 230 - i * 230, x1, CY + 230 - i * 230, W)
+        return g
+    cloud_shape(g, 0, 130, 0.92)
+    base = CY - 140
+    if kind == "cloud":
+        return weather("cloud_only")
+    if kind == "rain":
+        for x in (250, 416, 582):
+            g.line(x + 40, base, x - 30, base - 210, W * 0.8)
+    elif kind == "snow":
+        for x, dy in ((250, 0), (416, -110), (582, 0)):
+            g.circle(x, base - 90 + dy, 48)
+    elif kind == "sleet":
+        g.line(290, base, 230, base - 200, W * 0.8)
+        g.circle(450, base - 130, 48)
+        g.line(620, base, 560, base - 200, W * 0.8)
+    elif kind == "thunder":
+        g.poly([(470, base + 20), (320, base - 200), (420, base - 200), (360, base - 400), (540, base - 150), (440, base - 150)])
+    return g
+
+
+def cloud_only():
+    g = G()
+    cloud_shape(g, 0, 60)
+    return g
+
+
 GLYPHS = {
     # battery
     0xF0079: battery(5), 0xF007A: battery(1), 0xF007B: battery(1), 0xF007C: battery(2),
@@ -331,6 +503,18 @@ GLYPHS = {
     0xF088C: clockface(), 0xF051F: hourglass(), 0xF0176: cup(),
     # power profiles
     0xF032A: gauge(150), 0xF029A: gauge(90), 0xF04C5: gauge(30),
+    # panels and menus
+    0xF00ED: calendar(), 0xF0141: chevron("left"), 0xF0142: chevron("right"),
+    0xF0140: chevron("down"), 0xF012C: check(), 0xF0159: close_circle(),
+    0xF033E: lock(), 0xF0450: refresh(), 0xF0100: camera(), 0xF04C3: loudspeaker(),
+    0xF0996: clockface(), 0xF041: marker(),
+    # weather (Weather Icons code points used by omarchy.weather)
+    0xE30D: weather("clear"), 0xE32B: weather("clear", night=True),
+    0xE302: weather("partly"), 0xE32E: weather("partly", night=True),
+    0xE33D: cloud_only(), 0xE313: weather("fog"), 0xE346: weather("fog"),
+    0xE318: weather("rain"), 0xE308: weather("rain"), 0xE333: weather("rain"),
+    0xE31A: weather("snow"), 0xE30A: weather("snow"), 0xE327: weather("snow"),
+    0xE3AD: weather("sleet"), 0xE31D: weather("thunder"),
 }
 
 

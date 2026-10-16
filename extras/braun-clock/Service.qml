@@ -4,6 +4,7 @@ import Quickshell.Io
 import Quickshell.Services.UPower
 import Quickshell.Wayland
 import QtQuick
+import qs.Commons
 
 // The Rams clock, in three places:
 //
@@ -141,6 +142,9 @@ Item {
       Dial {
         anchors.fill: parent
         dark: root.dark
+        // Light: the theme background (the same tone). Dark: the dial stays
+        // noir, so its black lacquer disappears; the shell's surfaces match it.
+        fieldColor: root.dark ? "transparent" : Color.background
         running: root.desktopActive && !root.screensaverActive
         movement: root.movementFor("movement")
         size: root.opt("size", "classic")

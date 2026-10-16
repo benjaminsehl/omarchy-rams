@@ -3,7 +3,7 @@
 # thing that is focused, selected or active. Red means an error, nothing else.
 
 [bar]
-background       = "#1d1c1a"
+background       = "#0e0e0d"
 background-alpha = 1.0
 text             = "#dedad2"
 # Recording, dictation, alerts: the signal colour, like a power indicator.
@@ -59,15 +59,15 @@ body-small    = 11
 body          = 12
 subtitle      = 13
 title         = 14
-heading       = 16
-display       = 26
-display-large = 32
+heading       = 15
+display       = 20
+display-large = 24
 
 [popups]
-background       = "#1d1c1a"
+background       = "#0e0e0d"
 background-alpha = 1.0
 text             = "#dedad2"
-border           = "#403e3b"
+border           = "#2f2f2d"
 border-alpha     = 1.0
 border-width     = 1
 
@@ -79,21 +79,21 @@ border           = "#dedad2"
 border-alpha     = 1.0
 
 [notifications]
-background       = "#1d1c1a"
+background       = "#0e0e0d"
 background-alpha = 1.0
 text             = "#dedad2"
-border           = "#403e3b"
+border           = "#2f2f2d"
 border-alpha     = 1.0
 border-width     = 1
 countdown        = "#f0692b"
 
 [launcher]
-background                = "#1d1c1a"
+background                = "#0e0e0d"
 background-alpha          = 1.0
 text                      = "#dedad2"
-border                    = "#403e3b"
+border                    = "#2f2f2d"
 border-alpha              = 1.0
-scrim                     = "#1d1c1a"
+scrim                     = "#0e0e0d"
 scrim-alpha               = 0.35
 selected-background       = "#dedad2"
 selected-background-alpha = 0.07
@@ -102,12 +102,12 @@ selected-border           = "#dedad2"
 selected-border-alpha     = 0.0
 
 [menu]
-background                = "#1d1c1a"
+background                = "#0e0e0d"
 background-alpha          = 1.0
 text                      = "#dedad2"
-border                    = "#403e3b"
+border                    = "#2f2f2d"
 border-alpha              = 1.0
-scrim                     = "#1d1c1a"
+scrim                     = "#0e0e0d"
 scrim-alpha               = 0.35
 selected-background       = "#dedad2"
 selected-background-alpha = 0.07
@@ -116,25 +116,25 @@ selected-border           = "#dedad2"
 selected-border-alpha     = 0.0
 
 [polkit]
-background       = "#1d1c1a"
+background       = "#0e0e0d"
 background-alpha = 1.0
 text             = "#dedad2"
 text-error       = "#e2553a"
 border           = "#b9b4aa"
 border-error     = "#e2553a"
 border-alpha     = 1.0
-scrim            = "#1d1c1a"
+scrim            = "#0e0e0d"
 scrim-alpha      = 0.6
 accent           = "#f0692b"
 
 [lock]
-background       = "#1d1c1a"
+background       = "#0e0e0d"
 background-alpha = 1.0
 text             = "#dedad2"
 placeholder      = "#918e88"
 text-error       = "#e2553a"
 # Idle: a quiet rule. Typing: the signal colour. Wrong: red.
-border           = "#403e3b"
+border           = "#2f2f2d"
 border-active    = "#f0692b"
 border-error     = "#e2553a"
 border-alpha     = 1.0
@@ -142,7 +142,7 @@ selection        = "#f0692b"
 selection-alpha  = 0.35
 
 [image-picker]
-scrim                   = "#1d1c1a"
+scrim                   = "#0e0e0d"
 scrim-alpha             = 0.85
 text                    = "#dedad2"
 selected-border         = "#f0692b"
