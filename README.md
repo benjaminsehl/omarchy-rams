@@ -54,8 +54,11 @@ instruments in *Rams Instruments*, a small icon font in this repo:
 
 **ET 66 calculator.** A pocket calculator after the Braun ET 66: a dark
 body, a recessed display, convex dished keys, an orange clear key and the
-yellow equals key. Open it with `SUPER + ALT + C` or the calculator key; it
-takes the keyboard (Escape closes, Ctrl+C copies). It works the way the real
+yellow equals key. Open it with `SUPER + ALT + C`, the calculator key, or
+"Calculator" in the launcher; it takes the keyboard (Escape closes, Ctrl+C
+copies). Omarchy's own calculator, Omacalc, only takes a theme's four base
+colours, so on Rams the launcher's Calculator entry points at the ET 66
+instead (`omacalc` still runs it). It works the way the real
 one does: 2 + 3 × 4 = 20.
 
 **Everything else follows the same rules:**

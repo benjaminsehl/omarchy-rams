@@ -49,6 +49,35 @@ icons_off() {
   restart_shell=1
 }
 
+# On Rams, "Calculator" in the launcher opens the ET 66 (like the calculator
+# key does). A user-level omacalc.desktop overrides the system one; it is
+# removed again on other themes. Omacalc itself still runs as `omacalc`.
+calc_entry="${XDG_DATA_HOME:-$HOME/.local/share}/applications/omacalc.desktop"
+calc_marker="X-Rams-Override=true"
+
+calc_on() {
+  [[ -f $calc_entry ]] && ! grep -q "$calc_marker" "$calc_entry" && return 0  # the user's own
+  mkdir -p "$(dirname "$calc_entry")"
+  cat >"$calc_entry" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=ET 66
+GenericName=Calculator
+Comment=Pocket calculator after the Braun ET 66
+Exec=omarchy-shell et66 show
+Icon=omacalc
+Terminal=false
+Categories=Utility;Calculator;
+Keywords=calculator;calc;math;arithmetic;omacalc;braun;et66;
+$calc_marker
+DESKTOP
+}
+
+calc_off() {
+  [[ -f $calc_entry ]] && grep -q "$calc_marker" "$calc_entry" && rm -f "$calc_entry"
+  return 0
+}
+
 have_areal() { [[ -n $(fc-list "$mono" family) ]]; }
 
 # omarchy-font-set restarts the shell itself.
@@ -81,15 +110,18 @@ if [[ $theme =~ ^rams(-|$) ]]; then
   fi
   set_gtk "$ui" "$doc" "$gtkmono" orange
   icons_on
+  calc_on
   set_mono "$mono"
 elif [[ -f $state ]]; then
   prev_mono=$(sed -n 's/^mono=//p' "$state")
   set_gtk "$(sed -n 's/^ui=//p' "$state")" "$(sed -n 's/^doc=//p' "$state")" "$(sed -n 's/^gtkmono=//p' "$state")" "$(sed -n 's/^accent=//p' "$state")"
   rm -f "$state"
   icons_off
+  calc_off
   [[ -n $prev_mono ]] && set_mono "$prev_mono"
 else
   icons_off
+  calc_off
 fi
 
 if (( restart_shell )); then
