@@ -52,8 +52,13 @@ The same dial appears in three places:
   with a mechanical sweep, drifting slowly against burn-in. Input passes
   straight through to the stock screensaver, so dismissing and locking
   behave as usual.
-- **Lock screen:** the dial replaces the blurred wallpaper, and the password
-  field becomes a slim slot below the hub.
+- **Lock screen:** the dial replaces the blurred wallpaper. There's no
+  password box:
+  - a small, letter-spaced "password" and a hairline rule sit below the hub,
+    like the printing on a watch dial;
+  - the rule turns orange as you type and red for a wrong password, which
+    also gets a short, damped shake;
+  - the dots are ink by day and lume at night.
 
 **Bar instruments.** The bar's status icons (battery, volume, microphone,
 wifi, Bluetooth, monitor, indicators, power profiles) are redrawn as Braun
@@ -181,7 +186,8 @@ Notes for hacking on it:
   editing it.
 - The lock screen is a clone, so it won't pick up Omarchy's future changes
   to the stock lock view. After an Omarchy update that touches the lock,
-  re-clone it:
+  re-clone it (re-running `install.sh` alone re-applies the patch, from the
+  original view kept as `LockView.qml.orig`):
 
   ```bash
   omarchy plugin disable $USER.lock && rm -r ~/.config/omarchy/plugins/$USER.lock && ./install.sh
