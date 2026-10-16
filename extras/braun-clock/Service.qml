@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Services.UPower
 import Quickshell.Wayland
 import QtQuick
 
@@ -15,9 +16,11 @@ import QtQuick
 //   Lock screen  The Rams lock view loads Dial.qml from this folder.
 //
 // Options, all optional, in ~/.config/omarchy-rams/clock.json:
-//   { "movement": "quartz", "screensaverMovement": "mechanical",
+//   { "movement": "auto", "screensaverMovement": "auto",
 //     "size": "classic", "screensaver": true, "seconds": true }
-// movement: quartz | mechanical | smooth.   size: classic | compact.
+// movement: auto | quartz | mechanical | smooth.   size: classic | compact.
+// auto: a mechanical sweep (eight beats a second) on mains power, a quartz
+// tick (one redraw a second) on battery.
 //
 // Try the screensaver dial: omarchy-shell braunClock preview
 Item {
@@ -36,6 +39,11 @@ Item {
   property int screensaverCount: 0
   property bool previewing: false
   readonly property bool screensaverActive: (ramsTheme && config.screensaver !== false && screensaverCount > 0) || previewing
+
+  function movementFor(key) {
+    var m = opt(key, "auto")
+    return m === "auto" ? (UPower.onBattery ? "quartz" : "mechanical") : m
+  }
 
   function opt(key, fallback) {
     var v = config[key]
@@ -99,6 +107,7 @@ Item {
     function hide(): string { root.previewing = false; return "ok" }
     function status(): string {
       return JSON.stringify({ theme: root.themeName, desktop: root.desktopActive,
+        movement: root.movementFor("movement"), onBattery: UPower.onBattery,
         screensaver: root.screensaverActive, background: root.backgroundPath, config: root.config })
     }
   }
@@ -133,7 +142,7 @@ Item {
         anchors.fill: parent
         dark: root.dark
         running: root.desktopActive && !root.screensaverActive
-        movement: root.opt("movement", "quartz")
+        movement: root.movementFor("movement")
         size: root.opt("size", "classic")
         showSeconds: root.opt("seconds", true)
       }
@@ -181,7 +190,7 @@ Item {
           anchors.fill: parent
           dark: root.dark || root.opt("screensaverDark", true)
           running: saver.visible
-          movement: root.opt("screensaverMovement", "mechanical")
+          movement: root.movementFor("screensaverMovement")
           size: root.opt("size", "classic")
           showSeconds: root.opt("seconds", true)
           drift: true

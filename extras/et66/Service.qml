@@ -2,7 +2,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import QtQuick
-import QtQuick.Effects
 
 // A pocket calculator after the Braun ET 66 (Rams and Lubs, 1987): a dark
 // body, a recessed display, round convex keys in a strict grid, an orange
@@ -147,173 +146,110 @@ Item {
       }
     }
 
-    // Shadow under the body.
-    Rectangle {
-      id: bodyShadow
+    // ------------------------------------------------------- geometry
+    // Design units (logical px); the shader works in device px.
+    readonly property real dpr: win.screen ? win.screen.devicePixelRatio : 1
+    readonly property rect bodyRect: Qt.rect(16, 12, 308, 516)
+    readonly property rect displayRect: Qt.rect(38, 38, 264, 96)
+    readonly property point gridOrigin: Qt.point(65, 190)
+    readonly property real pitch: 70
+    readonly property real keyR: 28
+    property int pressedIdx: -1
+
+    readonly property var keyModel: [
+      "C", "±", "%", "÷",
+      "7", "8", "9", "×",
+      "4", "5", "6", "−",
+      "1", "2", "3", "+",
+      "0", ".", "⌫", "="
+    ]
+
+    // --------------------------------------------------------- printing
+    // Labels (red) and display digits (green), drawn into a texture the
+    // shader prints onto the keys and the LCD.
+    Item {
+      id: printLayer
+      width: win.width; height: win.height
       visible: false
-      x: body.x + 6; y: body.y + 14
-      width: body.width; height: body.height; radius: body.radius
-      color: "#000000"
-    }
-    MultiEffect {
-      source: bodyShadow
-      anchors.fill: bodyShadow
-      blurEnabled: true; blur: 1.0; blurMax: 32
-      opacity: 0.45
-    }
 
-    Rectangle {
-      id: body
-      x: 16; y: 12
-      width: parent.width - 32; height: parent.height - 40
-      radius: 22
-      gradient: Gradient {
-        GradientStop { position: 0.0; color: "#34302b" }
-        GradientStop { position: 1.0; color: "#26231f" }
-      }
-      border.color: "#403b35"
-      border.width: 1
-
-      // Display window, recessed.
-      Rectangle {
-        id: well
-        x: 22; y: 26
-        width: parent.width - 44; height: 96
-        radius: 10
-        color: "#1a1816"
-        Rectangle {
-          anchors.fill: parent
-          anchors.margins: 5
-          radius: 7
-          gradient: Gradient {
-            GradientStop { position: 0.0; color: "#a9ac98" }
-            GradientStop { position: 1.0; color: "#bfc2ad" }
-          }
-          // Inner shadow at the top edge of the glass.
-          Rectangle {
-            anchors { left: parent.left; right: parent.right; top: parent.top }
-            height: 10; radius: 7
-            gradient: Gradient {
-              GradientStop { position: 0.0; color: Qt.rgba(0, 0, 0, 0.22) }
-              GradientStop { position: 1.0; color: "transparent" }
-            }
-          }
-          Text {
-            anchors { right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter; verticalCenterOffset: 4 }
-            text: root.display
-            color: "#23251e"
-            font.family: root.monoFamily
-            font.pixelSize: 46
-            font.letterSpacing: 1
-          }
-          Text {
-            anchors { left: parent.left; leftMargin: 12; top: parent.top; topMargin: 8 }
-            text: root.pending
-            color: "#3a3d33"
-            font.family: root.family
-            font.pixelSize: 16
-          }
+      Repeater {
+        model: win.keyModel
+        Text {
+          required property int index
+          required property var modelData
+          x: win.gridOrigin.x + (index % 4) * win.pitch - width / 2
+          y: win.gridOrigin.y + Math.floor(index / 4) * win.pitch - height / 2
+          text: modelData
+          color: "#ff0000"
+          font.family: root.family
+          font.weight: Font.Medium
+          font.pixelSize: /^[0-9.]$/.test(modelData) ? 23 : 21
         }
       }
-
-      // The key grid: 4 columns, 5 rows, round keys.
-      Grid {
-        id: grid
-        x: 26; y: well.y + well.height + 30
-        columns: 4
-        spacing: 14
-        readonly property real key: (body.width - 52 - 3 * 14) / 4
-
-        Repeater {
-          model: [
-            { k: "C", kind: "clear" }, { k: "±", kind: "fn" }, { k: "%", kind: "fn" }, { k: "÷", kind: "op" },
-            { k: "7" }, { k: "8" }, { k: "9" }, { k: "×", kind: "op" },
-            { k: "4" }, { k: "5" }, { k: "6" }, { k: "−", kind: "op" },
-            { k: "1" }, { k: "2" }, { k: "3" }, { k: "+", kind: "op" },
-            { k: "0" }, { k: "." }, { k: "⌫", kind: "fn" }, { k: "=", kind: "equals" }
-          ]
-
-          Item {
-            id: keyItem
-            required property var modelData
-            readonly property string kind: modelData.kind || "digit"
-            readonly property color cap: kind === "clear" ? "#e2552a"
-              : kind === "equals" ? "#f2b705"
-              : kind === "op" ? "#5b4d40"
-              : kind === "fn" ? "#4a443d" : "#3c3833"
-            readonly property color label: kind === "equals" ? "#2a2520" : "#efebe3"
-            property bool down: mouse.pressed || flashTimer.running
-            width: grid.key; height: grid.key
-
-            Timer { id: flashTimer; interval: 110 }
-            Connections {
-              target: root
-              function onFlash(k) { if (k === keyItem.modelData.k) flashTimer.restart() }
-            }
-
-            // Shadow
-            Rectangle {
-              id: capShadow
-              visible: false
-              anchors.fill: parent
-              radius: width / 2
-              color: "#000000"
-            }
-            MultiEffect {
-              source: capShadow
-              anchors.fill: capShadow
-              anchors.topMargin: keyItem.down ? 1 : 4
-              anchors.leftMargin: keyItem.down ? 0 : 2
-              blurEnabled: true; blur: 0.7; blurMax: 12
-              opacity: 0.55
-            }
-
-            // The cap: convex, lit from above.
-            Rectangle {
-              anchors.fill: parent
-              anchors.margins: keyItem.down ? 2 : 0
-              radius: width / 2
-              color: keyItem.cap
-              gradient: Gradient {
-                GradientStop { position: 0.0; color: Qt.lighter(keyItem.cap, keyItem.down ? 1.05 : 1.28) }
-                GradientStop { position: 0.55; color: keyItem.cap }
-                GradientStop { position: 1.0; color: Qt.darker(keyItem.cap, 1.25) }
-              }
-              // A dished centre, as on the ET 66 keys.
-              Rectangle {
-                anchors.centerIn: parent
-                width: parent.width * 0.72; height: width; radius: width / 2
-                gradient: Gradient {
-                  GradientStop { position: 0.0; color: Qt.darker(keyItem.cap, 1.12) }
-                  GradientStop { position: 1.0; color: Qt.lighter(keyItem.cap, 1.08) }
-                }
-              }
-              Text {
-                anchors.centerIn: parent
-                text: keyItem.modelData.k
-                color: keyItem.label
-                font.family: root.family
-                font.weight: Font.Medium
-                font.pixelSize: keyItem.kind === "digit" ? 24 : 22
-              }
-            }
-
-            MouseArea {
-              id: mouse
-              anchors.fill: parent
-              onClicked: root.press(keyItem.modelData.k)
-            }
-          }
-        }
-      }
-
       Text {
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 14 }
-        text: "Rams"
-        color: "#6f675d"
+        x: win.displayRect.x + win.displayRect.width - 16 - width
+        y: win.displayRect.y + (win.displayRect.height - height) / 2 + 3
+        text: root.display
+        color: "#00ff00"
+        font.family: root.monoFamily
+        font.pixelSize: 46
+        font.letterSpacing: 1
+      }
+      Text {
+        x: win.displayRect.x + 14; y: win.displayRect.y + 12
+        text: root.pending
+        color: "#00ff00"
         font.family: root.family
-        font.pixelSize: 11
-        font.letterSpacing: 2
+        font.pixelSize: 15
+      }
+    }
+
+    ShaderEffectSource {
+      id: printSrc
+      sourceItem: printLayer
+      hideSource: true
+      textureSize: Qt.size(printLayer.width * win.dpr, printLayer.height * win.dpr)
+    }
+
+    ShaderEffect {
+      anchors.fill: parent
+      fragmentShader: Qt.resolvedUrl("shaders/et66.frag.qsb")
+      property size res: Qt.size(width * win.dpr, height * win.dpr)
+      property rect body: Qt.rect(win.bodyRect.x * win.dpr, win.bodyRect.y * win.dpr,
+                                  win.bodyRect.width * win.dpr, win.bodyRect.height * win.dpr)
+      property real bodyRadius: 24 * win.dpr
+      property rect display: Qt.rect(win.displayRect.x * win.dpr, win.displayRect.y * win.dpr,
+                                     win.displayRect.width * win.dpr, win.displayRect.height * win.dpr)
+      property point gridOrigin: Qt.point(win.gridOrigin.x * win.dpr, win.gridOrigin.y * win.dpr)
+      property real keyPitch: win.pitch * win.dpr
+      property real keyRadius: win.keyR * win.dpr
+      property real pressed: win.pressedIdx
+      property var printTex: printSrc
+    }
+
+    // --------------------------------------------------------- hit areas
+    Repeater {
+      model: win.keyModel
+      Item {
+        id: keyItem
+        required property int index
+        required property var modelData
+        x: win.gridOrigin.x + (index % 4) * win.pitch - win.keyR
+        y: win.gridOrigin.y + Math.floor(index / 4) * win.pitch - win.keyR
+        width: win.keyR * 2; height: width
+
+        Timer { id: flashTimer; interval: 110; onTriggered: if (win.pressedIdx === keyItem.index && !mouse.pressed) win.pressedIdx = -1 }
+        Connections {
+          target: root
+          function onFlash(k) { if (k === keyItem.modelData) { win.pressedIdx = keyItem.index; flashTimer.restart() } }
+        }
+        MouseArea {
+          id: mouse
+          anchors.fill: parent
+          onPressed: win.pressedIdx = keyItem.index
+          onReleased: if (win.pressedIdx === keyItem.index) win.pressedIdx = -1
+          onClicked: root.press(keyItem.modelData)
+        }
       }
     }
   }

@@ -21,16 +21,28 @@ something. It comes in two variants:
 ## What you get
 
 **The clock.** The desktop is a live Braun wall clock, after Rams and
-Dietrich Lubs, built like a watch:
+Dietrich Lubs, built like a watch and drawn by a shader as an object under
+one fixed light:
 
-- The whole screen is the dial, with a fine paper grain.
-- Hour indices are applied and the hands stand off the dial at three
-  heights. Each casts a soft shadow away from a light at the top left, and
-  the higher the hand, the further its shadow falls.
-- By day the lume channels are paper white. At night they glow.
-- The second hand is Braun yellow and steps like a quartz movement: one
-  short, damped tick a second. Mechanical (28,800 beats an hour) and smooth
-  movements are options.
+- **No numbers.** Twelve applied indices and a fine minute track, nothing
+  else.
+- **Real heights.** The indices stand off a fine pebbled dial, and the
+  hands stand at three heights. Each part casts a shadow that is longer and
+  softer the higher it stands.
+- **One light.** The hands are lacquered, with two facets meeting at a
+  ridge. The facet facing the light shines and the other goes dark, and that
+  changes as the hand turns.
+- **Ink is printed.** The minute track is in a deep tone of the dial
+  colour, not black.
+- **Day and night.** By day the lume is paper white in black frames; the
+  second hand is Braun yellow. At night the lume glows and everything else
+  nearly disappears.
+- **Movement.**
+  - On mains power, a mechanical sweep: 28,800 beats an hour, eight beats a
+    second, as on a Rolex or Grand Seiko.
+  - On battery, a quartz tick, one redraw a second: the stepper snaps
+    forward, overshoots a hair and settles.
+  - A smooth glide is an option.
 
 The same dial appears in three places:
 
@@ -52,9 +64,16 @@ instruments in *Rams Instruments*, a small icon font in this repo:
 - Charging is a single indicator dot.
 - Power profiles are one dial with the needle left, up or right.
 
-**ET 66 calculator.** A pocket calculator after the Braun ET 66: a dark
-body, a recessed display, convex dished keys, an orange clear key and the
-yellow equals key. Open it with `SUPER + ALT + C`, the calculator key, or
+**ET 66 calculator.** A pocket calculator after the Braun ET 66, drawn by
+a shader under the same light as the clock:
+
+- a matte, finely textured body;
+- an LCD in a recessed window under glass;
+- round keys standing off the body, with chamfered rims and dished tops;
+  pressed keys sink and their shadows shorten;
+- an orange clear key and the yellow equals key.
+
+ Open it with `SUPER + ALT + C`, the calculator key, or
 "Calculator" in the launcher; it takes the keyboard (Escape closes, Ctrl+C
 copies). Omarchy's own calculator, Omacalc, only takes a theme's four base
 colours, so on Rams the launcher's Calculator entry points at the ET 66
@@ -118,8 +137,8 @@ Optional, in `~/.config/omarchy-rams/clock.json` (reloads live):
 
 ```json
 {
-  "movement": "quartz",
-  "screensaverMovement": "mechanical",
+  "movement": "auto",
+  "screensaverMovement": "auto",
   "screensaverDark": true,
   "size": "classic",
   "seconds": true,
@@ -127,7 +146,8 @@ Optional, in `~/.config/omarchy-rams/clock.json` (reloads live):
 }
 ```
 
-- `movement`: `quartz`, `mechanical` or `smooth`.
+- `movement`: `auto` (mechanical on mains, quartz on battery), `quartz`,
+  `mechanical` or `smooth`.
 - `size`: `classic` fills the screen's height; `compact` sits in the middle.
 - To see the screensaver dial now, run `omarchy-shell braunClock preview`
   (click to close).
@@ -141,10 +161,10 @@ Optional, in `~/.config/omarchy-rams/clock.json` (reloads live):
 | `shell.toml` | Every Omarchy shell surface |
 | `neovim.lua`, `vscode-theme.json`, `obsidian.css`, `pi.json`, `btop.theme` | Editor and tool themes |
 | `backgrounds/` | The clock, SK 4 grille, T 3 perforation, ET 66 keys, the motto set in Areal |
-| `extras/braun-clock/` | `sehl.braun-clock`: `Dial.qml` (the dial), `Service.qml` (desktop, screensaver, IPC) |
+| `extras/braun-clock/` | `sehl.braun-clock`: `shaders/dial.frag` (the object), `Dial.qml` (time, palette, printing), `Service.qml` (desktop, screensaver, IPC). `./build.sh` compiles the shader |
 | `extras/lock/patch-lockview.py` | Patches a clone of `omarchy.lock`. Only its view changes; PAM and auth stay stock |
 | `extras/instruments/RamsInstruments.otf` | The bar icon font |
-| `extras/et66/` | `sehl.et66`, the calculator |
+| `extras/et66/` | `sehl.et66`, the calculator: `shaders/et66.frag`, `./build.sh` |
 | `hooks/rams-typography.sh` | theme-set hook: fonts, icon font, GTK accent on and off with the theme |
 | `tools/build.py` | Regenerates the per-variant files above from `colors.toml` |
 | `tools/render-dial/` | Renders `0-clock.png` from `Dial.qml`: `RAMS_REPO=$PWD qs -p tools/render-dial` |
